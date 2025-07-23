@@ -23,11 +23,11 @@ Synchronize scroll positions between multiple scrollable components — `ScrollV
 ## 📦 Installation
 
 ```sh
-npm install react-native-sync-scroll
+npm install react-native-scroll-sync
 # or
-yarn add react-native-sync-scroll
+yarn add react-native-scroll-sync
 # or
-bun install react-native-sync-scroll
+bun install react-native-scroll-sync
 ```
 
 
@@ -36,7 +36,7 @@ bun install react-native-sync-scroll
 ### 🟢 Basic example
 
 ```tsx
-import { ScrollView } from 'react-native-sync-scroll';
+import { ScrollView } from 'react-native-scroll-sync';
 
 export default function MyComponent() {
   return (
@@ -57,7 +57,7 @@ export default function MyComponent() {
 Use `syncKey` to group views explicitly, and `syncInterval` to control the scrollable range.
 
 ```tsx
-import { ScrollView, FlatList, SectionList } from 'react-native-sync-scroll';
+import { ScrollView, FlatList, SectionList } from 'react-native-scroll-sync';
 
 export default function MyComponent() {
   return (
