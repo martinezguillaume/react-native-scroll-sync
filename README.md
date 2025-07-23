@@ -1,4 +1,4 @@
-# ⚡️ react-native-scroll-sync
+![Header](./github-header-image.png)
 
 **Super lightweight and fast scroll-syncing utility for React Native**
 
