@@ -1,6 +1,6 @@
 {
   "name": "react-native-scroll-sync",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "⚡️ Super lightweight and fast scroll-syncing utility for React Native",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
