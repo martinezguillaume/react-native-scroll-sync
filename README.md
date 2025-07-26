@@ -13,6 +13,7 @@ Synchronize scroll positions between multiple scrollable components — `ScrollV
 ## ✨ Highlights
 
 - 🧩 **Perfect for collapsible headers**, tab views, or split layouts
+- 🧘‍♂️ **Flexible** — from simple synced lists to advanced animated layouts
 - ⚡️ **Full JavaScript** — no native code, no linking
 - 📱 **Expo Go** compatible
 - 🧵 **Works with** `ScrollView`, `FlatList`, and `SectionList`
