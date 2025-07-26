@@ -1,4 +1,8 @@
-![Header](./github-header-image.png)
+![Header](./assets/github-header-image.png)
+
+![Demo](assets/demo-1.gif)
+![Demo](assets/demo-2.gif)
+![Demo](assets/demo-3.gif)
 
 **Super lightweight and fast scroll-syncing utility for React Native**
 
@@ -8,6 +12,7 @@ Synchronize scroll positions between multiple scrollable components — `ScrollV
 
 ## ✨ Highlights
 
+- 🧩 **Perfect for collapsible headers**, tab views, or split layouts
 - ⚡️ **Full JavaScript** — no native code, no linking
 - 📱 **Expo Go** compatible
 - 🧵 **Works with** `ScrollView`, `FlatList`, and `SectionList`
@@ -15,7 +20,6 @@ Synchronize scroll positions between multiple scrollable components — `ScrollV
 - 🛡️ **Fully typed in TypeScript**
 - 🪶 **Lightweight** — a single file (~300 lines)
 - 💨 **Smooth 60fps scroll syncing**
-- 🧩 **Perfect for collapsible headers**, tab views, or split layouts
 - 📦 **Zero dependencies**
 
 ---
@@ -54,7 +58,7 @@ export default function MyComponent() {
 ```
 
 ### ⚙️ Advanced usage (with props)
-Use `syncKey` to group views explicitly, and `syncInterval` to control the scrollable range.
+Use `syncKey` to group views explicitly, `syncInterval` to control the active sync range, and `syncType` to define how views synchronize.
 
 ```tsx
 import { ScrollView, FlatList, SectionList } from 'react-native-scroll-sync';
@@ -75,6 +79,7 @@ export default function MyComponent() {
 
       <SectionList
         syncKey="mySecondGroup"
+        syncType="relative"
         syncInterval={[0, 500]}
         sections={[{ title: 'A', data: ['x', 'y'] }]}
         renderItem={({ item }) => <Text>{item}</Text>}
@@ -89,13 +94,16 @@ export default function MyComponent() {
 
 All components expand the props of the original component.
 
-| Prop           | Type               | Default         | Description                                                        |
-| -------------- | ------------------ | --------------- | ------------------------------------------------------------------ |
-| `syncKey`      | `string`           | `undefined`     | Identifier used to group multiple scroll views together            |
-| `syncInterval` | `[number, number]` | `undefined` | Scroll range (in pixels) within which synchronization should apply |
+| Prop           | Type                         | Default      | Description                                                                                                                                                                                                                                                 |
+| -------------- | ---------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `syncKey`      | `string`                     | `undefined`  | Identifier used to group multiple scroll views together                                                                                                                                                                                                     |
+| `syncInterval` | `[number, number]`           | `undefined`  | Scroll range (in pixels) within which synchronization should apply                                                                                                                                                                                          |
+| `syncType`     | `'absolute'` \| `'relative'` | `'absolute'` | Defines how synced views react inside the sync interval:<br>• `'absolute'`: all views match the same scroll offset<br>• `'relative'`: each view scrolls **relative to its current position**<br><br>🔁 Only takes effect **when `syncInterval` is defined** |
+
 
 - 🔑 Views with the same syncKey will scroll together. 
 - 📏 syncInterval prevents syncing outside of the specified vertical range (e.g. [0, 1000]).
+- ⚙️ Use syncType with syncInterval to fine-tune how scroll positions are aligned or compensated.
 
 ## Contributing
 

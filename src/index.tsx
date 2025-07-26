@@ -1,4 +1,5 @@
 import {
+  createRef,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -17,42 +18,52 @@ import {
   type DefaultSectionT,
 } from 'react-native';
 
-const globalState: Record<
+const keyStates: Record<
   string,
   {
-    refs: Array<RefObject<ScrollSyncRef | null>>;
-    activeRef: RefObject<ScrollSyncRef | null>;
+    states: Array<RefObject<ScrollSyncState>>;
+    activeState: RefObject<ScrollSyncState>;
   }
 > = {};
 
 type ScrollSyncRef = {
   scrollTo: (offset: number) => void;
 };
+type ScrollSyncState = {
+  lastOffset: number;
+  scrollRef: RefObject<ScrollSyncRef | null>;
+};
 type ScrollSyncProps = {
   syncKey?: string;
   syncInterval?: [number, number];
+  syncType?: 'absolute' | 'relative';
+  horizontal?: boolean;
 };
 const useScrollSync = ({
   syncKey = 'DEFAULT',
   syncInterval = [-Infinity, Infinity],
+  syncType = 'absolute',
+  horizontal = false,
 }: ScrollSyncProps) => {
-  const syncRef = useRef<ScrollSyncRef>(null);
-  const lastOffset = useRef(0);
+  const stateRef = useRef<ScrollSyncState>({
+    lastOffset: 0,
+    scrollRef: createRef<ScrollSyncRef>(),
+  });
 
   useEffect(() => {
-    if (!globalState[syncKey]) {
-      globalState[syncKey] = {
-        activeRef: syncRef,
-        refs: [],
+    if (!keyStates[syncKey]) {
+      keyStates[syncKey] = {
+        activeState: stateRef,
+        states: [],
       };
     }
-    globalState[syncKey].refs.push(syncRef);
+    keyStates[syncKey].states.push(stateRef);
     // syncRef.current?.scrollTo(globalState[syncKey].lastScrollY);
 
     return () => {
-      if (globalState[syncKey]) {
-        globalState[syncKey].refs = globalState[syncKey].refs.filter(
-          (ref) => ref !== syncRef
+      if (keyStates[syncKey]) {
+        keyStates[syncKey].states = keyStates[syncKey].states.filter(
+          (state) => state !== stateRef
         );
       }
     };
@@ -60,42 +71,53 @@ const useScrollSync = ({
   }, [syncKey, syncInterval?.toString()]);
 
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const state = globalState[syncKey];
-    if (syncRef === state?.activeRef) {
-      let offset: number | null = e.nativeEvent.contentOffset.y;
+    const keyState = keyStates[syncKey];
+    const contentOffset = horizontal
+      ? e.nativeEvent.contentOffset.x
+      : e.nativeEvent.contentOffset.y;
+    if (stateRef === keyState?.activeState) {
+      let offset: number | null = contentOffset;
       if (
         offset <= syncInterval[0] &&
-        !(lastOffset.current <= syncInterval[0])
+        !(stateRef.current.lastOffset <= syncInterval[0])
       ) {
         offset = syncInterval[0];
       } else if (
         offset >= syncInterval[1] &&
-        !(lastOffset.current >= syncInterval[1])
+        !(stateRef.current.lastOffset >= syncInterval[1])
       ) {
         offset = syncInterval[1];
       } else if (offset <= syncInterval[0] || offset >= syncInterval[1]) {
         offset = null;
       }
 
-      state.refs?.forEach((ref) => {
-        if (syncRef !== ref) {
+      keyState.states.forEach((state) => {
+        if (state !== stateRef) {
           if (offset !== null) {
-            ref.current?.scrollTo(offset);
+            if (syncType === 'absolute') {
+              state.current?.scrollRef.current?.scrollTo(offset);
+            } else {
+              const diffOffset = offset - stateRef.current.lastOffset;
+              state.current?.scrollRef.current?.scrollTo(
+                state.current.lastOffset + diffOffset
+              );
+            }
           }
         }
       });
     }
-    lastOffset.current = e.nativeEvent.contentOffset.y;
+    stateRef.current.lastOffset = contentOffset;
   };
 
   const setActive = () => {
-    if (globalState[syncKey]) {
-      globalState[syncKey].activeRef = syncRef;
+    const keyState = keyStates[syncKey];
+    if (keyState) {
+      keyState.activeState = stateRef;
     }
   };
 
   return {
-    syncRef,
+    scrollRef: stateRef.current.scrollRef,
     onScroll,
     setActive,
   };
@@ -106,11 +128,15 @@ export type FlatListProps<ItemT> = RNFlatListProps<ItemT> & ScrollSyncProps;
 export const FlatList = <ItemT,>({
   syncKey,
   syncInterval,
+  syncType,
+  horizontal,
   ...props
 }: FlatListProps<ItemT> & { ref?: Ref<RNFlatList> }) => {
-  const { onScroll, syncRef, setActive } = useScrollSync({
+  const { onScroll, scrollRef, setActive } = useScrollSync({
     syncKey,
     syncInterval,
+    syncType,
+    horizontal,
   });
 
   const ref = useRef<RNFlatList>(null);
@@ -138,7 +164,7 @@ export const FlatList = <ItemT,>({
       }) as RNFlatList
   );
 
-  useImperativeHandle(syncRef, () => ({
+  useImperativeHandle(scrollRef, () => ({
     scrollTo(offset) {
       ref.current?.scrollToOffset({ offset, animated: false });
     },
@@ -147,6 +173,7 @@ export const FlatList = <ItemT,>({
   return (
     <RNFlatList
       scrollEventThrottle={16}
+      horizontal={horizontal}
       {...props}
       ref={ref}
       onScrollBeginDrag={(e) => {
@@ -166,13 +193,17 @@ export type ScrollViewProps = RNScrollViewProps & ScrollSyncProps;
 export const ScrollView = ({
   syncInterval,
   syncKey,
+  syncType,
+  horizontal,
   ...props
 }: ScrollViewProps & {
   ref?: Ref<RNScrollView>;
 }) => {
-  const { onScroll, syncRef, setActive } = useScrollSync({
+  const { onScroll, scrollRef, setActive } = useScrollSync({
     syncKey,
     syncInterval,
+    syncType,
+    horizontal,
   });
 
   const ref = useRef<RNScrollView>(null);
@@ -192,15 +223,20 @@ export const ScrollView = ({
       }) as RNScrollView
   );
 
-  useImperativeHandle(syncRef, () => ({
+  useImperativeHandle(scrollRef, () => ({
     scrollTo(offset) {
-      ref.current?.scrollTo({ y: offset, animated: false });
+      ref.current?.scrollTo({
+        y: horizontal ? undefined : offset,
+        x: horizontal ? offset : undefined,
+        animated: false,
+      });
     },
   }));
 
   return (
     <RNScrollView
       scrollEventThrottle={16}
+      horizontal={horizontal}
       {...props}
       ref={ref}
       onScrollBeginDrag={(e) => {
@@ -226,13 +262,17 @@ export type SectionListProps<
 export const SectionList = <ItemT, SectionT>({
   syncKey,
   syncInterval,
+  syncType,
+  horizontal,
   ...props
 }: SectionListProps<ItemT, SectionT> & {
   ref?: Ref<RNSectionList<ItemT, SectionT>>;
 }) => {
-  const { onScroll, syncRef, setActive } = useScrollSync({
+  const { onScroll, scrollRef, setActive } = useScrollSync({
     syncKey,
     syncInterval,
+    syncType,
+    horizontal,
   });
 
   const ref = useRef<RNSectionList<ItemT, SectionT>>(null);
@@ -248,7 +288,7 @@ export const SectionList = <ItemT, SectionT>({
       }) as RNSectionList<ItemT, SectionT>
   );
 
-  useImperativeHandle(syncRef, () => ({
+  useImperativeHandle(scrollRef, () => ({
     scrollTo(offset) {
       ref.current?.scrollToLocation({
         viewOffset: -offset,
@@ -262,6 +302,7 @@ export const SectionList = <ItemT, SectionT>({
   return (
     <RNSectionList
       scrollEventThrottle={16}
+      horizontal={horizontal}
       {...props}
       ref={ref}
       onScrollBeginDrag={(e) => {
