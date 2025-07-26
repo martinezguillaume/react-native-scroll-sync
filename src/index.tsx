@@ -33,17 +33,17 @@ type ScrollSyncState = {
   lastOffset: number;
   scrollRef: RefObject<ScrollSyncRef | null>;
 };
-type ScrollSyncProps = {
+type ScrollSyncProps = Pick<RNScrollViewProps, 'horizontal' | 'onScroll'> & {
   syncKey?: string;
   syncInterval?: [number, number];
   syncType?: 'absolute' | 'relative';
-  horizontal?: boolean;
 };
 const useScrollSync = ({
   syncKey = 'DEFAULT',
   syncInterval = [-Infinity, Infinity],
   syncType = 'absolute',
   horizontal = false,
+  ...props
 }: ScrollSyncProps) => {
   const stateRef = useRef<ScrollSyncState>({
     lastOffset: 0,
@@ -76,6 +76,8 @@ const useScrollSync = ({
       ? e.nativeEvent.contentOffset.x
       : e.nativeEvent.contentOffset.y;
     if (stateRef === keyState?.activeState) {
+      props.onScroll?.(e);
+
       let offset: number | null = contentOffset;
       if (
         offset <= syncInterval[0] &&
@@ -137,6 +139,7 @@ export const FlatList = <ItemT,>({
     syncInterval,
     syncType,
     horizontal,
+    onScroll: props.onScroll,
   });
 
   const ref = useRef<RNFlatList>(null);
@@ -176,13 +179,10 @@ export const FlatList = <ItemT,>({
       horizontal={horizontal}
       {...props}
       ref={ref}
+      onScroll={onScroll}
       onScrollBeginDrag={(e) => {
         setActive();
         props.onScrollBeginDrag?.(e);
-      }}
-      onScroll={(e) => {
-        onScroll(e);
-        props.onScroll?.(e);
       }}
     />
   );
@@ -204,6 +204,7 @@ export const ScrollView = ({
     syncInterval,
     syncType,
     horizontal,
+    onScroll: props.onScroll,
   });
 
   const ref = useRef<RNScrollView>(null);
@@ -239,13 +240,10 @@ export const ScrollView = ({
       horizontal={horizontal}
       {...props}
       ref={ref}
+      onScroll={onScroll}
       onScrollBeginDrag={(e) => {
         setActive();
         props.onScrollBeginDrag?.(e);
-      }}
-      onScroll={(e) => {
-        onScroll(e);
-        props.onScroll?.(e);
       }}
     />
   );
@@ -305,13 +303,10 @@ export const SectionList = <ItemT, SectionT>({
       horizontal={horizontal}
       {...props}
       ref={ref}
+      onScroll={onScroll}
       onScrollBeginDrag={(e) => {
         setActive();
         props.onScrollBeginDrag?.(e);
-      }}
-      onScroll={(e) => {
-        onScroll(e);
-        props.onScroll?.(e);
       }}
     />
   );

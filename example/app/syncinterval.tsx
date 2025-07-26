@@ -5,8 +5,16 @@ import { colors } from '../colors';
 export default function SyncInterval() {
   return (
     <View style={styles.container}>
-      <SyncScrollView syncInterval={[0, 200]} color={colors.blue} />
-      <SyncScrollView syncInterval={[300, 500]} color={colors.blue} />
+      <SyncScrollView
+        syncInterval={[0, 200]}
+        color={colors.blue}
+        isSyncIntervalVisible
+      />
+      <SyncScrollView
+        syncInterval={[300, 500]}
+        color={colors.blue}
+        isSyncIntervalVisible
+      />
     </View>
   );
 }

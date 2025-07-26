@@ -10,12 +10,14 @@ export default function SyncKey() {
         horizontal
         color={colors.blue}
         syncInterval={[0, 200]}
+        isSyncIntervalVisible
       />
       <SyncScrollView
         syncKey="two"
         horizontal
         color={colors.red}
         syncInterval={[300, 400]}
+        isSyncIntervalVisible
       />
       <SyncScrollView syncKey="one" horizontal color={colors.blue} />
       <SyncScrollView syncKey="two" horizontal color={colors.red} />

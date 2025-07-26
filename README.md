@@ -3,6 +3,7 @@
 ![Demo](assets/demo-1.gif)
 ![Demo](assets/demo-2.gif)
 ![Demo](assets/demo-3.gif)
+![Demo](assets/demo-4.gif)
 
 **Super lightweight and fast scroll-syncing utility for React Native**
 

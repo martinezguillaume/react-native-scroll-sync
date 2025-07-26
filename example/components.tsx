@@ -14,6 +14,7 @@ const data = Array.from({ length: 100 }).map((_, i) => i);
 
 export const SyncFlatList = ({
   color,
+  contentContainerStyle,
   ...props
 }: Partial<FlatListProps<number>> & {
   color: string;
@@ -31,10 +32,13 @@ export const SyncFlatList = ({
         data={data}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: !horizontal ? insets.bottom || 16 : undefined,
-          paddingTop: !horizontal ? insets.top || 16 : undefined,
-        }}
+        contentContainerStyle={[
+          {
+            paddingBottom: !horizontal ? insets.bottom || 16 : undefined,
+            paddingTop: !horizontal ? insets.top || 16 : undefined,
+          },
+          contentContainerStyle,
+        ]}
         renderItem={({ item, index }) => (
           <Item title={item.toString()} index={index} color={color} />
         )}
@@ -50,10 +54,13 @@ export const SyncFlatList = ({
 export const SyncScrollView = ({
   color,
   title,
+  contentContainerStyle,
+  isSyncIntervalVisible,
   ...props
 }: Partial<ScrollViewProps> & {
   color: string;
   title?: string;
+  isSyncIntervalVisible?: boolean;
 }) => {
   const insets = useSafeAreaInsets();
   const ref = useRef<ScrollView>(null);
@@ -66,12 +73,15 @@ export const SyncScrollView = ({
         {...props}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: !horizontal ? insets.bottom || 16 : undefined,
-          paddingTop: !horizontal ? insets.top || 16 : undefined,
-        }}
+        contentContainerStyle={[
+          {
+            paddingBottom: !horizontal ? insets.bottom || 16 : undefined,
+            paddingTop: !horizontal ? insets.top || 16 : undefined,
+          },
+          contentContainerStyle,
+        ]}
       >
-        {syncInterval && (
+        {syncInterval && isSyncIntervalVisible && (
           <View
             style={[
               styles.syncInterval,
@@ -106,11 +116,14 @@ export const SyncScrollView = ({
 
 export const SyncSectionList = ({
   color,
+  contentContainerStyle,
   ...props
 }: Partial<ScrollViewProps> & {
   color: string;
 }) => {
+  const insets = useSafeAreaInsets();
   const ref = useRef<SectionList>(null);
+  const { horizontal } = props;
 
   return (
     <View style={styles.flex}>
@@ -122,6 +135,13 @@ export const SyncSectionList = ({
         renderItem={({ item, index }) => (
           <Item title={item.toString()} index={index} color={color} />
         )}
+        contentContainerStyle={[
+          {
+            paddingBottom: !horizontal ? insets.bottom || 16 : undefined,
+            paddingTop: !horizontal ? insets.top || 16 : undefined,
+          },
+          contentContainerStyle,
+        ]}
       />
       <ScrollButton
         onPress={(offset) => {
@@ -163,7 +183,7 @@ const ScrollButton = ({
   horizontal,
 }: {
   onPress: (offset: number) => void;
-  horizontal?: boolean;
+  horizontal?: boolean | null;
 }) => {
   const insets = useSafeAreaInsets();
   const [scrollOffset, setScrollOffset] = useState(0);

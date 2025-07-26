@@ -45,9 +45,11 @@ export default function App() {
           syncType
         </Button>
       </Link>
-      <Button onPress={() => {}} color={colors.blue}>
-        header
-      </Button>
+      <Link href="/header" asChild>
+        <Button onPress={() => {}} color={colors.blue}>
+          header
+        </Button>
+      </Link>
       <View style={styles.flex} />
     </ScrollView>
   );
