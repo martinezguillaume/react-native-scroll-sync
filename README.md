@@ -5,12 +5,20 @@
 ![Demo](assets/demo-3.gif)
 ![Demo](assets/demo-4.gif)
 
-<div data-snack-id="@martinezguillaume/github.com-martinezguillaume-react-native-scroll-sync:example@test-snack" data-snack-platform="mydevice" data-snack-preview="true" data-snack-theme="light" style="overflow:hidden;background:#fbfcfd;border:1px solid var(--color-border);border-radius:4px;height:505px;width:100%"></div>
-<script async src="https://snack.expo.dev/embed.js"></script>
-
 **Super lightweight and fast scroll-syncing utility for React Native**
 
 Synchronize scroll positions between multiple scrollable components — `ScrollView`, `FlatList`, and `SectionList` — with a super simple API, zero dependencies, and buttery 60fps performance.
+
+---
+
+## 🎮 Try the Expo Snack
+
+🔗 [Open in Snack](https://snack.expo.dev/@martinezguillaume/react-native-scroll-sync)
+
+📱 Scan this QR Code with the **Expo Go** app:
+
+![QR Code](https://api.qrserver.com/v1/create-qr-code/?data=https://snack.expo.dev/@martinezguillaume/react-native-scroll-sync&size=200x200)
+
 
 ---
 
