@@ -11,6 +11,17 @@ Synchronize scroll positions between multiple scrollable components — `ScrollV
 
 ---
 
+## 🎮 Try the Expo Snack
+
+🔗 [Open in Snack](https://snack.expo.dev/@martinezguillaume/react-native-scroll-sync)
+
+📱 Scan this QR Code with the **Expo Go** app:
+
+![QR Code](https://api.qrserver.com/v1/create-qr-code/?data=https://snack.expo.dev/@martinezguillaume/react-native-scroll-sync&size=200x200)
+
+
+---
+
 ## ✨ Highlights
 
 - 🧩 **Perfect for collapsible headers**, tab views, or split layouts
