@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     top: 8,
     bottom: 8,
     right: 16,
-    left: null,
+    left: 'auto',
     paddingHorizontal: 8,
   },
   scrollButtonText: {

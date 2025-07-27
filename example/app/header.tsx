@@ -59,6 +59,7 @@ export default function Header() {
         ref={scrollRef}
         pagingEnabled
         horizontal
+        showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: insets.top || 16 }}
         onScroll={(e) => {
           const offset = e.nativeEvent.contentOffset.x;
@@ -151,7 +152,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: colors.pink,
-    borderRadius: 32,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
     zIndex: 10,
   },
   header: {
@@ -171,6 +173,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   tab: {
+    flex: 1,
     width: WIDTH,
   },
 });

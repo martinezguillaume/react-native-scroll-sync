@@ -9,6 +9,14 @@
 
 Synchronize scroll positions between multiple scrollable components — `ScrollView`, `FlatList`, and `SectionList` — with a super simple API, zero dependencies, and buttery 60fps performance.
 
+## ✅ Platform Compatibility
+
+| Component     | iOS | Android | Web |
+|---------------|:---:|:-------:|:---:|
+| `ScrollView`  | ✅  | ✅      | ✅  |
+| `FlatList`    | ✅  | ✅      | ✅  |
+| `SectionList` | ✅  | ✅      | ✅  |
+
 ---
 
 ## 🎮 Try the Expo Snack

@@ -6,12 +6,14 @@ export default function SyncType() {
   return (
     <View style={styles.container}>
       <SyncScrollView
+        isSyncIntervalVisible
         syncInterval={[0, 200]}
         syncType="absolute"
         color={colors.blue}
         title="ABSOLUTE"
       />
       <SyncScrollView
+        isSyncIntervalVisible
         syncInterval={[300, 500]}
         syncType="relative"
         color={colors.blue}
@@ -23,6 +25,7 @@ export default function SyncType() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     flexDirection: 'row',
   },
 });

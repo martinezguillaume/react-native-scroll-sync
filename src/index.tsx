@@ -1,5 +1,6 @@
 import {
   createRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -16,6 +17,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type DefaultSectionT,
+  Platform,
 } from 'react-native';
 
 const keyStates: Record<
@@ -43,8 +45,11 @@ const useScrollSync = ({
   syncInterval = [-Infinity, Infinity],
   syncType = 'absolute',
   horizontal = false,
+  scrollViewRef,
   ...props
-}: ScrollSyncProps) => {
+}: ScrollSyncProps & {
+  scrollViewRef: RefObject<{ getScrollableNode: any } | null>;
+}) => {
   const stateRef = useRef<ScrollSyncState>({
     lastOffset: 0,
     scrollRef: createRef<ScrollSyncRef>(),
@@ -111,18 +116,95 @@ const useScrollSync = ({
     stateRef.current.lastOffset = contentOffset;
   };
 
-  const setActive = () => {
+  const setActive = useCallback(() => {
     const keyState = keyStates[syncKey];
     if (keyState) {
       keyState.activeState = stateRef;
     }
-  };
+  }, [syncKey]);
+
+  // WEB
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const node = scrollViewRef?.current?.getScrollableNode();
+      node?.addEventListener('wheel', setActive, { passive: true });
+      node?.addEventListener('touchstart', setActive, { passive: true });
+      return () => {
+        node?.removeEventListener('wheel', setActive);
+        node?.removeEventListener('touchstart', setActive);
+      };
+    }
+    return;
+  }, [setActive, scrollViewRef]);
 
   return {
     scrollRef: stateRef.current.scrollRef,
     onScroll,
     setActive,
   };
+};
+
+export type ScrollView = RNScrollView;
+export type ScrollViewProps = RNScrollViewProps & ScrollSyncProps;
+export const ScrollView = ({
+  syncInterval,
+  syncKey,
+  syncType,
+  horizontal,
+  ...props
+}: ScrollViewProps & {
+  ref?: Ref<RNScrollView>;
+}) => {
+  const ref = useRef<RNScrollView>(null);
+
+  const { onScroll, scrollRef, setActive } = useScrollSync({
+    syncKey,
+    syncInterval,
+    syncType,
+    horizontal,
+    onScroll: props.onScroll,
+    scrollViewRef: ref,
+  });
+
+  useImperativeHandle(
+    props.ref,
+    () =>
+      ({
+        ...ref.current,
+        scrollTo(...args) {
+          setActive();
+          ref.current?.scrollTo(...args);
+        },
+        scrollToEnd(...args) {
+          setActive();
+          ref.current?.scrollToEnd(...args);
+        },
+      }) as RNScrollView
+  );
+
+  useImperativeHandle(scrollRef, () => ({
+    scrollTo(offset) {
+      ref.current?.scrollTo({
+        y: horizontal ? undefined : offset,
+        x: horizontal ? offset : undefined,
+        animated: false,
+      });
+    },
+  }));
+
+  return (
+    <RNScrollView
+      scrollEventThrottle={16}
+      horizontal={horizontal}
+      {...props}
+      ref={ref}
+      onScroll={onScroll}
+      onScrollBeginDrag={(e) => {
+        setActive();
+        props.onScrollBeginDrag?.(e);
+      }}
+    />
+  );
 };
 
 export type FlatList<ItemT = any> = RNFlatList<ItemT>;
@@ -134,15 +216,17 @@ export const FlatList = <ItemT,>({
   horizontal,
   ...props
 }: FlatListProps<ItemT> & { ref?: Ref<RNFlatList> }) => {
+  const ref = useRef<RNFlatList>(null);
+
   const { onScroll, scrollRef, setActive } = useScrollSync({
     syncKey,
     syncInterval,
     syncType,
     horizontal,
     onScroll: props.onScroll,
+    scrollViewRef: ref,
   });
 
-  const ref = useRef<RNFlatList>(null);
   useImperativeHandle(
     props.ref,
     () =>
@@ -188,67 +272,6 @@ export const FlatList = <ItemT,>({
   );
 };
 
-export type ScrollView = RNScrollView;
-export type ScrollViewProps = RNScrollViewProps & ScrollSyncProps;
-export const ScrollView = ({
-  syncInterval,
-  syncKey,
-  syncType,
-  horizontal,
-  ...props
-}: ScrollViewProps & {
-  ref?: Ref<RNScrollView>;
-}) => {
-  const { onScroll, scrollRef, setActive } = useScrollSync({
-    syncKey,
-    syncInterval,
-    syncType,
-    horizontal,
-    onScroll: props.onScroll,
-  });
-
-  const ref = useRef<RNScrollView>(null);
-  useImperativeHandle(
-    props.ref,
-    () =>
-      ({
-        ...ref.current,
-        scrollTo(...args) {
-          setActive();
-          ref.current?.scrollTo(...args);
-        },
-        scrollToEnd(...args) {
-          setActive();
-          ref.current?.scrollToEnd(...args);
-        },
-      }) as RNScrollView
-  );
-
-  useImperativeHandle(scrollRef, () => ({
-    scrollTo(offset) {
-      ref.current?.scrollTo({
-        y: horizontal ? undefined : offset,
-        x: horizontal ? offset : undefined,
-        animated: false,
-      });
-    },
-  }));
-
-  return (
-    <RNScrollView
-      scrollEventThrottle={16}
-      horizontal={horizontal}
-      {...props}
-      ref={ref}
-      onScroll={onScroll}
-      onScrollBeginDrag={(e) => {
-        setActive();
-        props.onScrollBeginDrag?.(e);
-      }}
-    />
-  );
-};
-
 export type SectionList<
   ItemT = any,
   SectionT = DefaultSectionT,
@@ -266,14 +289,17 @@ export const SectionList = <ItemT, SectionT>({
 }: SectionListProps<ItemT, SectionT> & {
   ref?: Ref<RNSectionList<ItemT, SectionT>>;
 }) => {
+  const ref = useRef<RNSectionList<ItemT, SectionT>>(null);
+
   const { onScroll, scrollRef, setActive } = useScrollSync({
     syncKey,
     syncInterval,
     syncType,
     horizontal,
+    scrollViewRef: ref,
+    onScroll: props.onScroll,
   });
 
-  const ref = useRef<RNSectionList<ItemT, SectionT>>(null);
   useImperativeHandle(
     props.ref,
     () =>
